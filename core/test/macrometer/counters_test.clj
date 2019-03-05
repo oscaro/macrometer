@@ -23,3 +23,9 @@
     (is (= 1.0 (count c)))
     (increment c 10.5)
     (is (= 11.5 (count c)))))
+
+(deftest fn-counters-test
+  (let [a (atom 0)
+        c (fn-counter "counter" a deref :registry *registry*)]
+    (dotimes [_ 3] (swap! a inc))
+    (is (= 3.0 (count c)))))

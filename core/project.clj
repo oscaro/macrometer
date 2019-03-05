@@ -2,4 +2,6 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [io.micrometer/micrometer-core "1.1.3"]]
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]]
-                   :source-paths ["dev"]}})
+                   :source-paths ["dev"]}}
+  :repl-options {:init-ns user}
+  :global-vars {*warn-on-reflection* true})

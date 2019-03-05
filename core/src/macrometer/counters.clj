@@ -2,16 +2,17 @@
   (:refer-clojure :exclude [count])
   (:require [clojure.string :as s]
             [macrometer.core :refer [default-registry ->tags]])
-  (:import (io.micrometer.core.instrument Counter)))
+  (:import (io.micrometer.core.instrument Counter FunctionCounter)
+           (java.util.function ToDoubleFunction)))
 
 (defn counter
-  "Add the counter (a monotonically increasing value given a name n a sequence of tags) to a single registry,
+  "Defines a new counter (a monotonically increasing value given a name n a sequence of tags) to a single registry,
   or return an existing counter in that registry.
   The returned counter will be unique for each registry, but each registry is guaranteed to only create
   one counter for the same combination of name and tags.
 
   ex. (counter \"http.request.count\" :tags {:route \"/api/users\" :method \"GET\"})"
-  [n & opts]
+  [^String n & opts]
   (let [{:keys [tags description unit registry]
          :or   {registry default-registry}} (apply array-map opts)]
     (cond-> (Counter/builder n)
@@ -25,14 +26,15 @@
   For simplicity, all dashes are translated into dots (idiomatic)
   Invocations are this macro will always add the metric to the global (ie. default) registry)"
   [s & opts]
-  (let [n (s/replace (str s) "-" ".")
+  (let [n    (s/replace (str s) "-" ".")
         args (vec (cons n opts))]
     `(def ~s (apply counter ~args))))
 
-(defn count
+(defmulti count
   "Returns the cumulative count since this counter was created."
-  [^Counter c]
-  (.count c))
+  class)
+(defmethod count Counter [^Counter c] (.count c))
+(defmethod count FunctionCounter [^FunctionCounter c] (.count c))
 
 (defn increment
   "Updates the counter by amount or 1.0 if not specified."
@@ -40,3 +42,20 @@
    (.increment c))
   ([^Counter c amt]
    (.increment c amt)))
+
+(defn fn-counter
+  "Defines a new function-tracking counter where obj is the state of a specific obj
+  and f a monotonically increasing function.
+  It is very important that f is guaranteed to be monotonic.
+  see. http://micrometer.io/docs/concepts#_function_tracking_counters"
+  [^String n obj f & opts]
+  (let [{:keys [tags description unit registry]
+         :or   {registry default-registry}} (apply array-map opts)
+        tdf (reify ToDoubleFunction
+              (applyAsDouble [_ v]
+                (double (f v))))]
+    (cond-> (FunctionCounter/builder n obj tdf)
+      tags (.tags (->tags tags))
+      description (.description description)
+      unit (.baseUnit unit)
+      :always (.register registry))))
