@@ -26,9 +26,8 @@
   For simplicity, all dashes are translated into dots (idiomatic)
   Invocations are this macro will always add the metric to the global (ie. default) registry)"
   [s & opts]
-  (let [n    (s/replace (str s) "-" ".")
-        args (vec (cons n opts))]
-    `(def ~s (apply counter ~args))))
+  (let [n (s/replace (name s) "-" ".")]
+    `(def ~s (counter ~n ~@opts))))
 
 (defmulti count
   "Returns the cumulative count since this counter was created."
