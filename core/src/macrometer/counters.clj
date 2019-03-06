@@ -1,7 +1,7 @@
 (ns macrometer.counters
   (:refer-clojure :exclude [count])
   (:require [clojure.string :as s]
-            [macrometer.core :refer [default-registry ->tags]])
+            [macrometer.core :refer [register-meter]])
   (:import (io.micrometer.core.instrument Counter FunctionCounter)
            (java.util.function ToDoubleFunction)))
 
@@ -13,13 +13,7 @@
 
   ex. (counter \"http.request.count\" :tags {:route \"/api/users\" :method \"GET\"})"
   [^String n & opts]
-  (let [{:keys [tags description unit registry]
-         :or   {registry default-registry}} (apply array-map opts)]
-    (cond-> (Counter/builder n)
-      tags (.tags (->tags tags))
-      description (.description description)
-      unit (.baseUnit unit)
-      :always (.register registry))))
+  (register-meter (Counter/builder n) opts))
 
 (defmacro defcounter
   "Defines a new counter metric using the symbol as the name.
@@ -48,13 +42,5 @@
   It is very important that f is guaranteed to be monotonic.
   see. http://micrometer.io/docs/concepts#_function_tracking_counters"
   [^String n obj f & opts]
-  (let [{:keys [tags description unit registry]
-         :or   {registry default-registry}} (apply array-map opts)
-        tdf (reify ToDoubleFunction
-              (applyAsDouble [_ v]
-                (double (f v))))]
-    (cond-> (FunctionCounter/builder n obj tdf)
-      tags (.tags (->tags tags))
-      description (.description description)
-      unit (.baseUnit unit)
-      :always (.register registry))))
+  (let [dbl-fn (reify ToDoubleFunction (applyAsDouble [_ v] (double (f v))))]
+    (register-meter (FunctionCounter/builder n obj dbl-fn) opts)))

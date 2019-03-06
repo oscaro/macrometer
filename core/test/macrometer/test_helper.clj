@@ -1,5 +1,4 @@
 (ns macrometer.test-helper
-  (:require [clojure.test :refer :all])
   (:import (io.micrometer.core.instrument.simple SimpleMeterRegistry)
            (io.micrometer.core.instrument MeterRegistry)))
 

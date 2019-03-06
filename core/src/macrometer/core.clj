@@ -1,5 +1,5 @@
 (ns macrometer.core
-  (:import (io.micrometer.core.instrument MeterRegistry Metrics Tag)))
+  (:import (io.micrometer.core.instrument MeterRegistry Metrics Tag Meter)))
 
 (def ^{:tag MeterRegistry :doc "Default registry used by public API functions when no explicit registry argument is given"}
 default-registry Metrics/globalRegistry)
@@ -13,3 +13,14 @@ default-registry Metrics/globalRegistry)
                     (conj tags tag)
                     tags))]
     (reduce add-tag [] tags)))
+
+(defn ^Meter register-meter
+  "Convenience function for registering meters"
+  [builder opts]
+  (let [{:keys [tags description unit registry]
+         :or   {registry default-registry}} (apply array-map opts)]
+    (cond-> builder
+      tags (.tags (->tags tags))
+      description (.description description)
+      unit (.baseUnit unit)
+      :always (.register registry))))
