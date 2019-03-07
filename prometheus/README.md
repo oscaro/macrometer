@@ -22,8 +22,6 @@ Look at `test/macrometer/prometheus_test.clj`
 | `:route`            | `string`  | `"/metrics"` | Path for the prometheus endpoint 
 | `:global?`          | `boolean` | `true`       | Add to the global (ie. default) registry
 | `:include-hotspot?` | `boolean` | `false`      | If `true`, include default hotspot metrics (like jmx)
-                     
-```
 
 ## License
 
