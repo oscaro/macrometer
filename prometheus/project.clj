@@ -7,4 +7,5 @@
   :profiles {:dev {:dependencies [[io.pedestal/pedestal.service-tools "0.5.5"]
                                   [io.pedestal/pedestal.jetty "0.5.5"]]
                    :source-paths ["dev"]}}
+  :repl-options {:init-ns user}
   :global-vars {*warn-on-reflection* true})
