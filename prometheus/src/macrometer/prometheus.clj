@@ -4,7 +4,10 @@
             [macrometer.core :refer [default-registry]])
   (:import (io.micrometer.core.instrument Clock)
            (io.micrometer.prometheus PrometheusMeterRegistry PrometheusConfig)
-           (io.prometheus.client CollectorRegistry)))
+           (io.prometheus.client CollectorRegistry)
+           (io.micrometer.core.instrument.binder MeterBinder)
+           (io.micrometer.core.instrument.binder.jvm ClassLoaderMetrics JvmGcMetrics JvmMemoryMetrics JvmThreadMetrics)
+           (io.micrometer.core.instrument.binder.system ProcessorMetrics FileDescriptorMetrics UptimeMetrics)))
 
 (def config
   {:component/metrics {:route            "/metrics"
@@ -24,25 +27,27 @@
     Clock/SYSTEM))
 
 (defn- add-hotspot-metrics
-  []
+  [reg]
   (log/info "Adding hotspot metrics")
-  (try
-    (Class/forName "io.prometheus.client.hotspot.DefaultExports")
-    (eval `(io.prometheus.client.hotspot.DefaultExports/initialize))
-    (catch Exception _
-      (log/warn "io.prometheus/simpleclient_hotspot library is not loaded into classpath"))))
+  (doseq [metrics [(ClassLoaderMetrics.)
+                   (JvmGcMetrics.)
+                   (JvmMemoryMetrics.)
+                   (JvmThreadMetrics.)
+                   (FileDescriptorMetrics.)
+                   (ProcessorMetrics.)
+                   (UptimeMetrics.)]]
+    (.bindTo ^MeterBinder metrics reg)))
 
 (defmethod ig/init-key :component/metrics [_ {:keys [route global? include-hotspot?] :as sys}]
   (log/info "Starting prometheus metrics component")
-  (let [reg    (prometheus-registry)
-        routes #{[route :get (prometheus-metrics reg)]}]
+  (let [reg (prometheus-registry)]
     (when global?
       (.add default-registry reg))
     (when include-hotspot?
-      (add-hotspot-metrics))
+      (add-hotspot-metrics reg))
     (assoc sys
       :registry reg
-      :io.pedestal.http/routes routes)))
+      :io.pedestal.http/routes #{[route :get (prometheus-metrics reg)]})))
 
 (defmethod ig/halt-key! :component/metrics [_ {:keys [global? ^PrometheusMeterRegistry registry] :as sys}]
   (log/info "Stopping prometheus metrics component")

@@ -5,7 +5,6 @@
                  [io.micrometer/micrometer-registry-prometheus "1.1.3"]
                  [integrant "0.7.0"]]
   :profiles {:dev {:dependencies [[io.pedestal/pedestal.service-tools "0.5.5"]
-                                  [io.pedestal/pedestal.jetty "0.5.5"]
-                                  [io.prometheus/simpleclient_hotspot "0.5.0"]]
+                                  [io.pedestal/pedestal.jetty "0.5.5"]]
                    :source-paths ["dev"]}}
   :global-vars {*warn-on-reflection* true})
