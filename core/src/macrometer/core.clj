@@ -1,7 +1,8 @@
 (ns macrometer.core
-  (:import (io.micrometer.core.instrument MeterRegistry Metrics Tag Meter)))
+  (:import (io.micrometer.core.instrument MeterRegistry Metrics Tag Meter)
+           (io.micrometer.core.instrument.composite CompositeMeterRegistry)))
 
-(def ^{:tag MeterRegistry :doc "Default registry used by public API functions when no explicit registry argument is given"}
+(def ^{:tag CompositeMeterRegistry :doc "Default registry used by public API functions when no explicit registry argument is given"}
 default-registry Metrics/globalRegistry)
 
 (defn- kv->tag [k v] (when v (Tag/of (name k) (str v))))
@@ -24,3 +25,10 @@ default-registry Metrics/globalRegistry)
       description (.description description)
       unit (.baseUnit unit)
       :always (.register registry))))
+
+(defn unregister-meter
+  "Convenience function for unregistering meters"
+  ([m]
+   (unregister-meter default-registry m))
+  ([^MeterRegistry reg ^Meter m]
+   (.remove reg m)))
