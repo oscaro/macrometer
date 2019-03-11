@@ -3,16 +3,24 @@
   (:require [clojure.string :as s]
             [macrometer.core :refer [register-meter]])
   (:import (io.micrometer.core.instrument Timer Timer$Sample)
-           (io.micrometer.core.instrument MeterRegistry)))
+           (io.micrometer.core.instrument MeterRegistry)
+           (java.time Duration)))
 
 (defn ^Timer timer
   "Defines a new timer"
-  [^String n & {:keys [publish-percentile-histogram publish-percentiles sla] :as opts}]
-  (cond-> (Timer/builder n)
-    publish-percentile-histogram (.publishPercentileHistogram)
-    publish-percentiles (.publishPercentiles (double-array publish-percentiles))
-    sla (.sla (into-array java.time.Duration sla))
-    :always (register-meter opts)))
+  [^String n & opts]
+  (let [{:keys [publish-percentile-histogram
+                publish-percentiles
+                sla
+                maximum-expected-value
+                minimum-expected-value]} opts]
+    (cond-> (Timer/builder n)
+      publish-percentile-histogram (.publishPercentileHistogram)
+      publish-percentiles (.publishPercentiles (double-array publish-percentiles))
+      sla (.sla (into-array Duration sla))
+      minimum-expected-value (.minimumExpectedValue minimum-expected-value)
+      maximum-expected-value (.maximumExpectedValue maximum-expected-value)
+      :always (register-meter opts))))
 
 (defmacro deftimer
   "Defines a new timer metric using the symbol as the name.

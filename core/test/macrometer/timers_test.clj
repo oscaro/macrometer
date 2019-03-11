@@ -3,15 +3,27 @@
   (:require [clojure.test :refer :all]
             [macrometer.timers :refer :all]
             [macrometer.test-helper :refer :all])
-  (:import (java.util.concurrent TimeUnit)))
+  (:import (java.util.concurrent TimeUnit)
+           (java.time Duration)))
 
 (deftimer test-timers-deftimer
-  :tags {:a "a" :b "b"})
+  :tags {:a "a" :b "b"}
+  :publish-percentile-histogram true
+  :publish-percentiles [0.5 0.95]
+  :sla [(Duration/ofMillis 100)]
+  :minimum-expected-value (Duration/ofMillis 1)
+  :maximum-expected-value (Duration/ofMillis 1000))
 
 (deftest timers-are-unique
   (is (identical?
-        (timer "test.timers.deftimer" :tags {:a "a" :b "b"})
-        test-timers-deftimer)))
+       (timer "test.timers.deftimer"
+              :tags {:a "a" :b "b"}
+              :publish-percentile-histogram true
+              :publish-percentiles [0.5 0.95]
+              :sla [(Duration/ofMillis 100)]
+              :minimum-expected-value (Duration/ofMillis 1)
+              :maximum-expected-value (Duration/ofMillis 1000))
+       test-timers-deftimer)))
 
 (use-fixtures
   :each
