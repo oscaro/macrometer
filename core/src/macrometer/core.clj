@@ -19,7 +19,7 @@ default-registry Metrics/globalRegistry)
   "Convenience function for registering meters"
   [builder opts]
   (let [{:keys [tags description unit registry]
-         :or   {registry default-registry}} (apply array-map opts)]
+         :or   {registry default-registry}} opts #_(apply array-map opts)]
     (cond-> builder
       tags (.tags (->tags tags))
       description (.description description)

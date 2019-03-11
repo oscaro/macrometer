@@ -1,4 +1,5 @@
 (ns macrometer.timers
+  (:refer-clojure :exclude [count])
   (:require [clojure.string :as s]
             [macrometer.core :refer [register-meter]])
   (:import (io.micrometer.core.instrument Timer Timer$Sample)
@@ -6,8 +7,12 @@
 
 (defn ^Timer timer
   "Defines a new timer"
-  [^String n & opts]
-  (register-meter (Timer/builder n) opts))
+  [^String n & {:keys [publish-percentile-histogram publish-percentiles sla] :as opts}]
+  (cond-> (Timer/builder n)
+    publish-percentile-histogram (.publishPercentileHistogram)
+    publish-percentiles (.publishPercentiles (double-array publish-percentiles))
+    sla (.sla (into-array java.time.Duration sla))
+    :always (register-meter opts)))
 
 (defmacro deftimer
   "Defines a new timer metric using the symbol as the name.
