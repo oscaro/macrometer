@@ -8,7 +8,9 @@
              [test :refer [response-for]]]
             [macrometer
              [counters :as c]
-             [gauges :as g]]))
+             [gauges :as g]
+             [timers :as t]]
+            [clojure.string :as str]))
 
 (def ^:dynamic *service* nil)
 
@@ -37,6 +39,22 @@
   :description "This is a gauge"
   :unit "km/h")
 
+(t/deftimer app-some-timer
+  :tags {:e "e" :f "f"})
+
+(defn filter-metric
+  [metric body]
+  (->> body
+       split-lines
+       (filter (fn [^String s] (.startsWith s metric)))))
+
+(defn approximately=
+  [precision m1 m2]
+  (->> (merge-with (fn [& args] args) m1 m2)
+       (map (fn [v1 v2] (if (float? v1)
+                          (< (* precision v1) (Double/parseDouble v2) (* (+ 2 (- precision)) v1))
+                          (= v1 v2))))))
+
 (deftest prometheus-metrics-test
 
   (testing "setting some values"
@@ -48,10 +66,15 @@
   (testing "/metrics route"
     (let [{:keys [status body]} (response-for *service* :get "/metrics")]
       (is (= 200 status))
-      (is (= #{"# HELP app_some_counter_total This is a counter"
-               "# TYPE app_some_counter_total counter"
-               "app_some_counter_total{a=\"a\",b=\"b\",} 100.0"
-               "# HELP app_some_gauge_km_h This is a gauge"
-               "# TYPE app_some_gauge_km_h gauge"
-               "app_some_gauge_km_h{c=\"c\",d=\"d\",} 1.0"}
-             (-> body split-lines set))))))
+      (is (= ["app_some_counter_total{a=\"a\",b=\"b\",} 100.0"]
+             (filter-metric "app_some_counter" body)))
+      (is (= ["app_some_gauge_km_h{c=\"c\",d=\"d\",} 1.0"]
+             (filter-metric "app_some_gauge" body)))
+      (is (approximately=
+           0.8
+           {"app_some_timer_seconds_max{e=\"e\",f=\"f\",}" 0.1
+            "app_some_timer_seconds_count{e=\"e\",f=\"f\",}" "1.0"
+            "app_some_timer_seconds_sum{e=\"e\",f=\"f\",}" 0.1}
+           (->> (filter-metric "app_some_timer" body)
+                (map #(vec (str/split % #" ")))
+                (into {})))))))

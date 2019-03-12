@@ -1,7 +1,7 @@
 (ns macrometer.timers
   (:refer-clojure :exclude [count])
   (:require [clojure.string :as s]
-            [macrometer.core :refer [register-meter]])
+            [macrometer.core :refer [register-meter default-registry]])
   (:import (io.micrometer.core.instrument Timer Timer$Sample)
            (io.micrometer.core.instrument MeterRegistry)
            (java.time Duration)))
@@ -54,8 +54,9 @@
 
 (defn ^Timer$Sample start
   "Register an anonymous timer sample in the registry."
-  [^MeterRegistry reg]
-  (Timer/start reg))
+  ([^MeterRegistry reg]
+   (Timer/start reg))
+  ([] (start default-registry)))
 
 (defn stop
   "Save the sample result to a timer.

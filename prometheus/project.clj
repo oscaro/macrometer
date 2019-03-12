@@ -9,6 +9,7 @@
                  ["oscaro-snapshot" {:url "https://artifactory.oscaroad.com/artifactory/libs-snapshot-local"}]]
   :profiles {:dev {:dependencies [[io.pedestal/pedestal.service-tools "0.5.5"]
                                   [io.pedestal/pedestal.jetty "0.5.5"]]
-                   :source-paths ["dev"]}}
+                   :source-paths ["dev"
+                                  "../core/src"]}}
   :repl-options {:init-ns user}
   :global-vars {*warn-on-reflection* true})
