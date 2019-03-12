@@ -79,12 +79,10 @@ Timers report a short duration event. This is usefule for tracking http calls fo
 ```clojure
 (require '[macrometer.timers :as t])
 (import [java.util.concurrent TimeUnit])
-(import [io.micrometer.core.instrument.simple SimpleMeterRegistry])
 
 (t/deftimer a-timer
   :tags {:a "a" :b "b"}
-  :description "A timer for something"
-  :registry (SimpleMeterRegistry.))
+  :description "A timer for something")
 
 ;(def a-counter (t/timer "a.counter" 
 ;                        :tags {:a "a" :b "b"}
@@ -120,7 +118,7 @@ There are 4 ways to use a timer:
   * Using start/stop:
   
     ```clojure
-    (let [sample (t/start registry)]
+    (let [sample (t/start)]
       (Thread/sleep 100)
       (t/stop sample a-timer))
     ```
