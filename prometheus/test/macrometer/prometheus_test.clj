@@ -51,9 +51,12 @@
 (defn approximately=
   [precision m1 m2]
   (->> (merge-with (fn [& args] args) m1 m2)
-       (map (fn [v1 v2] (if (float? v1)
-                          (< (* precision v1) (Double/parseDouble v2) (* (+ 2 (- precision)) v1))
-                          (= v1 v2))))))
+       (map (fn [[k [v1 v2]]]
+              (if (float? v1)
+                (< (* precision v1) (Double/parseDouble v2) (* (+ 2 (- precision)) v1))
+                (= v1 v2))))
+       (doall)
+       (every? true?)))
 
 (deftest prometheus-metrics-test
 
@@ -61,7 +64,10 @@
     (c/increment app-some-counter 100)
     (is (= 100.0 (c/count app-some-counter)))
     (swap! app-some-gauge inc)
-    (is (= 1.0 @app-some-gauge)))
+    (is (= 1.0 @app-some-gauge))
+    (let [f (t/wrapped app-some-timer (fn [] (Thread/sleep 100)))]
+      (f))
+    (is (< 10 (.totalTime app-some-timer java.util.concurrent.TimeUnit/MILLISECONDS) 1000)))
 
   (testing "/metrics route"
     (let [{:keys [status body]} (response-for *service* :get "/metrics")]
