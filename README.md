@@ -72,6 +72,61 @@ For `atom`s, `AtomicLong`s and other immutable `Number`s etc...
 (g/gauge "fn.gauge" (partial rand-int 100) :tags {:app "clio"})
 ```
 
+### [Timers](http://micrometer.io/docs/concepts#_timers)
+
+Timers report a short duration event. This is usefule for tracking http calls for instance.
+
+```clojure
+(require '[macrometer.timers :as t])
+(import [java.util.concurrent TimeUnit])
+(import [io.micrometer.core.instrument.simple SimpleMeterRegistry])
+
+(t/deftimer a-timer
+  :tags {:a "a" :b "b"}
+  :description "A timer for something"
+  :registry (SimpleMeterRegistry.))
+
+;(def a-counter (t/timer "a.counter" 
+;                        :tags {:a "a" :b "b"}
+;                        :description "A timer for something")) 
+  
+(t/monitor a-timer (Thread/sleep 100))
+(.totalTime a-timer TimeUnit/MILLISECONDS)
+; => 100.263522
+```
+
+There are 4 ways to use a timer:
+
+  * Directly recoding a duration:
+  
+    ```clojure
+    (.record a-timer 3000 TimeUnit/MILLISECONDS)
+    ```
+  
+  * Registering a monitored function:
+
+    ```clojure
+    (monitored t (fn [x] (Thread/sleep 100) x))
+    ```
+  
+  You can use wrapped instead of monitored for a 0-arity function.
+
+  * Monitoring a block a code:
+
+    ```clojure
+    (monitor t (Thread/sleep 100) true)
+    ```
+
+  * Using start/stop:
+  
+    ```clojure
+    (let [sample (t/start registry)]
+      (Thread/sleep 100)
+      (t/stop sample a-timer))
+    ```
+    
+    We specify the timer only at the end to be able to set tags based on the result of the body.
+
 ## License
 
 Copyright © 2019 Oscaro
