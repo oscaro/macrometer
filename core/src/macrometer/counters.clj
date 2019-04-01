@@ -1,11 +1,23 @@
 (ns macrometer.counters
   (:refer-clojure :exclude [count])
   (:require [clojure.string :as s]
-            [macrometer.core :refer [register-meter]])
-  (:import (io.micrometer.core.instrument Counter FunctionCounter)
-           (java.util.function ToDoubleFunction)))
+            [macrometer.core :refer :all])
+  (:import (io.micrometer.core.instrument Counter)
+           (clojure.lang IPersistentMap)))
 
-(defn counter
+(defn ^Counter mk-counter
+  "Defines a new counter"
+  ([c] (mk-counter c nil))
+  ([{:keys [name tags description unit registry]
+     :or   {registry default-registry}} more-tags]
+   (cond-> (Counter/builder name)
+     tags (.tags (->tags tags))
+     more-tags (.tags (->tags (apply array-map more-tags)))
+     description (.description description)
+     unit (.baseUnit unit)
+     registry (.register registry))))
+
+(defn ^Counter counter
   "Defines a new counter (a monotonically increasing value given a name n a sequence of tags) to a single registry,
   or return an existing counter in that registry.
   The returned counter will be unique for each registry, but each registry is guaranteed to only create
@@ -13,34 +25,37 @@
 
   ex. (counter \"http.request.count\" :tags {:route \"/api/users\" :method \"GET\"})"
   [^String n & opts]
-  (register-meter (Counter/builder n) opts))
-
-(defmacro defcounter
-  "Defines a new counter metric using the symbol as the name.
-  For simplicity, all dashes are translated into dots (idiomatic)
-  Invocations are this macro will always add the metric to the global (ie. default) registry)"
-  [s & opts]
-  (let [n (s/replace (name s) "-" ".")]
-    `(def ~s (counter ~n ~@opts))))
+  (mk-counter (assoc (apply array-map opts) :name n)))
 
 (defmulti count
   "Returns the cumulative count since this counter was created."
-  class)
-(defmethod count Counter [^Counter c] (.count c))
-(defmethod count FunctionCounter [^FunctionCounter c] (.count c))
+  (fn [c & _] (class c)))
+(defmethod count Counter
+  [^Counter c]
+  (.count c))
+(defmethod count IPersistentMap
+  [c & tags]
+  (count (mk-counter c tags)))
 
-(defn increment
+(defmulti increment
   "Updates the counter by amount or 1.0 if not specified."
+  (fn [c & _] (class c)))
+(defmethod increment Counter
   ([^Counter c]
-   (.increment c))
+    (.increment c))
   ([^Counter c amt]
-   (.increment c amt)))
+    (.increment c amt)))
+(defmethod increment IPersistentMap
+  [c & args]
+  (if (odd? (clojure.core/count args))
+    (let [amt  (double (first args))
+          tags (rest args)]
+      (increment (mk-counter c tags) amt))
+    (increment (mk-counter c args))))
 
-(defn fn-counter
-  "Defines a new function-tracking counter where obj is the state of a specific obj
-  and f a monotonically increasing function.
-  It is very important that f is guaranteed to be monotonic.
-  see. http://micrometer.io/docs/concepts#_function_tracking_counters"
-  [^String n obj f & opts]
-  (let [dbl-fn (reify ToDoubleFunction (applyAsDouble [_ v] (double (f v))))]
-    (register-meter (FunctionCounter/builder n obj dbl-fn) opts)))
+(defmacro defcounter
+  "Defines a new counter metric using the symbol as the name.
+  For simplicity, all dashes are translated into dots (idiomatic)."
+  [s & opts]
+  (let [n (s/replace (name s) "-" ".")]
+    `(def ~s ~(assoc (apply array-map opts) :name n))))

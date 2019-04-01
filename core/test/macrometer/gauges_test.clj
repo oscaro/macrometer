@@ -1,23 +1,24 @@
 (ns macrometer.gauges-test
   (:require [clojure.test :refer :all]
             [macrometer.gauges :refer :all]
-            [macrometer.test-helper :refer :all])
-  (:import (java.util.concurrent.atomic AtomicLong)))
+            [macrometer.test-utils :refer :all]
+            [clojure.core.async :as a]
+            [macrometer.core :as m])
+  (:import (java.util.concurrent.atomic AtomicLong)
+           (io.micrometer.core.instrument.simple SimpleMeterRegistry)))
 
-(defgauge test-gauges-defgauge
-  rand
-  :tags {:a "a" :b "b"})
-
-(deftest counters-are-unique
-  (is (identical?
-        (gauge "test.gauges.defgauge" rand :tags {:a "a" :b "b"})
-        test-gauges-defgauge)))
+(def a (atom 0))
+(def reg (SimpleMeterRegistry.))
+(defgauge a-gauge
+  a
+  :tags {:a "a" :b "b"}
+  :registry reg)
 
 (use-fixtures
   :each
   with-registry)
 
-(deftest gauges-test
+(deftest gauge-test
 
   (testing "arbitrary functions"
     (let [x (rand-int 100)
@@ -38,15 +39,32 @@
   (testing "support for atomic number values"
     (let [a (AtomicLong.)
           g (gauge "gauge.long" a :registry *registry*)]
-      (is (zero? (.get a)))
+      (is (zero? (value g)))
       (.set a 10)
       (is (= 10.0 (value g)))))
 
-  (testing "manual gauges are just atoms which are incremented
-            and decremented manually (and report metrics of course ;))"
-    (let [g (gauge "gauge.manual" :registry *registry*)]
-      (is (zero? @g))
-      (swap! g + 10)
-      (is (= 10.0 @g))
-      (reset! g 0)
+  (testing "if core.async is present, gauges on internal buffers is supported"
+    (let [ch (a/chan 10)
+          g  (gauge "gauge.chan" ch :registry *registry*)]
+      (is (zero? (value g)))
+      (dotimes [i 10]
+        (a/>!! ch i))
+      (a/close! ch)
+      (is (= 10.0 (value g)))
+      (loop [] (when-let [_ (a/<!! ch)] (recur)))
       (is (zero? (value g))))))
+
+(deftest defgauge-test
+
+  (testing "instances are only created once"
+    (is (= a-gauge (first (m/gauges "a.gauge" reg)))))
+
+  (testing "simple operations"
+    (is (zero? (value a-gauge)))
+    (swap! a inc)
+    (is (= 1 @a))
+    (is (= 1.0 (value a-gauge)) "Gauges are always doubles")
+    (swap! a + 10)
+    (is (= 11.0 (value a-gauge)))
+    (reset! a 0)
+    (is (zero? (value a-gauge)))))

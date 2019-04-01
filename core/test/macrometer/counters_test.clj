@@ -2,30 +2,47 @@
   (:refer-clojure :exclude [count])
   (:require [clojure.test :refer :all]
             [macrometer.counters :refer :all]
-            [macrometer.test-helper :refer :all]))
+            [macrometer.test-utils :refer :all]
+            [macrometer.core :as m])
+  (:import (io.micrometer.core.instrument.simple SimpleMeterRegistry)))
 
-(defcounter test-counters-defcounter
-  :tags {:a "a" :b "b"})
-
-(deftest counters-are-unique
-  (is (identical?
-        (counter "test.counters.defcounter" :tags {:a "a" :b "b"})
-        test-counters-defcounter)))
+(def reg (SimpleMeterRegistry.))
+(defcounter a-counter
+  :tags {:a "a" :b "b"}
+  :registry reg)
 
 (use-fixtures
   :each
   with-registry)
 
-(deftest counters-test
-  (let [c (counter "counter" :registry *registry*)]
-    (is (zero? (count c)))
-    (increment c)
-    (is (= 1.0 (count c)))
-    (increment c 10.5)
-    (is (= 11.5 (count c)))))
+(deftest counter-test
+  (let [c (counter "cnt" :tags {:a "a"} :registry *registry*)]
 
-(deftest fn-counters-test
-  (let [a (atom 0)
-        c (fn-counter "counter" a deref :registry *registry*)]
-    (dotimes [_ 3] (swap! a inc))
-    (is (= 3.0 (count c)))))
+    (testing "a new counter is always 0"
+      (is (zero? (count c))))
+
+    (testing "increment by 1"
+      (increment c)
+      (is (= 1.0 (count c))))
+
+    (testing "increment by an arbitrary number"
+      (increment c 10.5)
+      (is (= 11.5 (count c))))))
+
+(deftest defcounter-test
+
+  (testing "instances are only created once"
+    (is (= (mk-counter a-counter) (first (m/counters "a.counter" reg)))))
+
+  (testing "simple operations"
+    (is (zero? (count a-counter)))
+    (increment a-counter)
+    (is (= 1.0 (count a-counter)))
+    (increment a-counter 10.5)
+    (is (= 11.5 (count a-counter))))
+
+  (testing "adding new tags in fact creates a new meter underneath"
+    (increment a-counter :c "c")
+    (increment a-counter 2 :c "c")
+    (is (= 3.0 (count a-counter :c "c")))
+    (is (= 11.5 (count a-counter)) "Old meter without additional tags remains unchanged")))
