@@ -1,7 +1,7 @@
 (ns macrometer.prometheus
   (:require [clojure.tools.logging :as log]
             [integrant.core :as ig]
-            [macrometer.core :refer [default-registry]])
+            [macrometer.core :refer [default-registry clear-meters]])
   (:import (io.micrometer.core.instrument Clock)
            (io.micrometer.prometheus PrometheusMeterRegistry PrometheusConfig)
            (io.prometheus.client CollectorRegistry)
@@ -52,6 +52,7 @@
 (defmethod ig/halt-key! :component/metrics [_ {:keys [global? ^PrometheusMeterRegistry registry] :as sys}]
   (log/info "Stopping prometheus metrics component")
   (when global?
+    (clear-meters)
     (.remove default-registry registry))
   (.close registry)
   (.clear (.getPrometheusRegistry registry))

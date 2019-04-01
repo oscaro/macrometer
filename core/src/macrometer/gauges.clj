@@ -1,9 +1,30 @@
 (ns macrometer.gauges
   (:require [clojure.string :as s]
-            [macrometer.core :refer [register-meter]])
-  (:import (io.micrometer.core.instrument Gauge)
+            [macrometer.core :refer :all])
+  (:import (io.micrometer.core.instrument Gauge Gauge$Builder)
            (java.util.function Supplier ToDoubleFunction)
-           (clojure.lang IFn IAtom IDeref)))
+           (clojure.lang IAtom Fn)))
+
+(def core-async-present?
+  (try
+    (require 'clojure.core.async)
+    true
+    (catch Throwable _ false)))
+
+(defn- mk-supplier [f] (reify Supplier (get [_] (f))))
+(defn- mk-dbl-fn [f] (reify ToDoubleFunction (applyAsDouble [_ v] (f v))))
+(defn ^Gauge mk-gauge
+  "Defines a new gauge"
+  ([n f opts] (mk-gauge (Gauge/builder n (mk-supplier f)) opts))
+  ([n obj f opts] (mk-gauge (Gauge/builder ^String n obj ^ToDoubleFunction (mk-dbl-fn f)) opts))
+  ([^Gauge$Builder builder {:keys [tags description unit strong registry]
+                            :or   {registry default-registry}}]
+   (cond-> builder
+     tags (.tags (->tags tags))
+     description (.description description)
+     unit (.baseUnit unit)
+     strong (.strongReference strong)
+     registry (.register registry))))
 
 (defmulti gauge
   "Defines a new gauge (a value that may go up or down) to a single registry,
@@ -12,53 +33,24 @@
   one gauge for the same combination of name and tags.
 
   ex. (gauge \"pool.size\" (some-fn) :tags {:name \"work\"})"
-  (fn [_ x & _]
-    (cond
-      (fn? x) :fn
-      (instance? IAtom x) :atom
-      (number? x) :number
-      :else :default)))
-
-(defmethod gauge :fn
-  [^String n ^IFn f & opts]
-  (let [supplier (reify Supplier (get [_] (double (f))))]
-    (register-meter (Gauge/builder n supplier) opts)))
-
-(def ^:private ^ToDoubleFunction atom->double
-  (reify ToDoubleFunction (applyAsDouble [_ v] (-> v deref double))))
-(defmethod gauge :atom
+  (fn [_ x & _] (class x)))
+(defmethod gauge Fn
+  [^String n ^Fn f & opts]
+  (mk-gauge n f opts))
+(defmethod gauge IAtom
   [^String n ^IAtom a & opts]
-  (register-meter (Gauge/builder n a atom->double) opts))
-
-(def ^:private ^ToDoubleFunction num->double
-  (reify ToDoubleFunction (applyAsDouble [_ v] (.doubleValue ^Number v))))
-(defmethod gauge :number
-  [^String n ^Number num & opts]
-  (register-meter (Gauge/builder n num num->double) opts))
-
-(deftype ManualGauge [^Gauge g ^IAtom a]
-  IAtom
-  (swap [_ f] (swap! a f))
-  (swap [_ f x] (swap! a f x))
-  (swap [_ f x y] (swap! a f x y))
-  (swap [_ f x y args] (apply swap! a f x y args))
-  (compareAndSet [_ old new] (compare-and-set! a old new))
-  (reset [_ new] (reset! a new))
-  IDeref
-  (deref [_] (deref a))
-  Gauge
-  (value [_] (.value g)))
-
-(defmethod gauge :default
-  [^String n & opts]
-  (let [a (atom 0.0)
-        g (apply gauge n a opts)]
-    (ManualGauge. g a)))
+  (mk-gauge n a deref opts))
+(defmethod gauge Number
+  [^String n ^Number number & opts]
+  (mk-gauge n number #(.doubleValue ^Number %) opts))
+(when core-async-present?
+  (defmethod gauge clojure.core.async.impl.channels.ManyToManyChannel
+    [^String n ^clojure.core.async.impl.channels.ManyToManyChannel ch & opts]
+    (mk-gauge n (.buf ch) count opts)))
 
 (defmacro defgauge
   "Defines a new gauge metric using the symbol as the name.
-  For simplicity, all dashes are translated into dots (idiomatic)
-  Invocations are this macro will always add the metric to the global (ie. default) registry)"
+  For simplicity, all dashes are translated into dots (idiomatic)"
   [s x & opts]
   (let [n (s/replace (name s) "-" ".")]
     `(def ~s (gauge ~n ~x ~@opts))))

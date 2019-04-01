@@ -1,9 +1,13 @@
 (ns macrometer.core
-  (:import (io.micrometer.core.instrument MeterRegistry Metrics Tag Meter)
+  (:require [macrometer.misc])
+  (:import (io.micrometer.core.instrument MeterRegistry Metrics Tag
+                                          Meter Counter Gauge Timer)
            (io.micrometer.core.instrument.composite CompositeMeterRegistry)))
 
-(def ^{:tag CompositeMeterRegistry :doc "Default registry used by public API functions when no explicit registry argument is given"}
-default-registry Metrics/globalRegistry)
+(def
+  ^{:tag CompositeMeterRegistry
+    :doc "Default registry used by public API functions when no explicit registry argument is given"}
+  default-registry Metrics/globalRegistry)
 
 (defn- kv->tag [k v] (when v (Tag/of (name k) (str v))))
 (defn ^Iterable ->tags
@@ -15,20 +19,45 @@ default-registry Metrics/globalRegistry)
                     tags))]
     (reduce add-tag [] tags)))
 
-(defn ^Meter register-meter
-  "Convenience function for registering meters"
-  [builder opts]
-  (let [{:keys [tags description unit registry]
-         :or   {registry default-registry}} (apply array-map opts)]
-    (cond-> builder
-      tags (.tags (->tags tags))
-      description (.description description)
-      unit (.baseUnit unit)
-      :always (.register registry))))
-
 (defn unregister-meter
-  "Convenience function for unregistering meters"
-  ([m]
-   (unregister-meter default-registry m))
+  "Removes a meter"
+  ([m] (unregister-meter default-registry m))
   ([^MeterRegistry reg ^Meter m]
    (.remove reg m)))
+
+(defn all-meters
+  "Returns all registered meters"
+  ([] (all-meters default-registry))
+  ([^MeterRegistry reg]
+   (seq (.getMeters reg))))
+
+(defn clear-meters
+  "Removes all meters from the registry"
+  ([] (clear-meters default-registry))
+  ([^MeterRegistry reg]
+   (doseq [^Meter m (all-meters reg)]
+     (unregister-meter reg m))))
+
+(defn- meters-by-name
+  [c n ^MeterRegistry reg]
+  (->> (all-meters reg)
+       (filter (partial instance? c))
+       (filter (fn [^Meter m] (= n (.getName (.getId m)))))))
+
+(defn counters
+  "Returns all counters given a name (and registry)"
+  ([n] (counters n default-registry))
+  ([n ^MeterRegistry reg]
+   (meters-by-name Counter n reg)))
+
+(defn gauges
+  "Returns all gauges given a name (and registry)"
+  ([n] (gauges n default-registry))
+  ([n ^MeterRegistry reg]
+   (meters-by-name Gauge n reg)))
+
+(defn timers
+  "Returns all timers given a name (and registry)"
+  ([n] (timers n default-registry))
+  ([n ^MeterRegistry reg]
+   (meters-by-name Timer n reg)))
