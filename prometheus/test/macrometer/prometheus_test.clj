@@ -16,7 +16,7 @@
 
 (defn with-service
   [f]
-  (let [sys (ig/init config)]
+  (let [sys (ig/init (assoc-in config [:component/metrics :include-hotspot?] true))]
     (try
       (binding [*service* (->> (:component/metrics sys)
                                (merge {::http/port 8888 ::http/type :jetty})
@@ -78,24 +78,26 @@
     (is (< 10 (t/total-time app-some-timer :milliseconds) 1000)))
 
   (testing "/metrics route"
-    (let [{:keys [status body]} (response-for *service* :get "/metrics")]
+    (let [{:keys [status body] :as resp} (response-for *service* :get "/metrics")]
+      (println "resp:" resp)
       (is (= 200 status))
       (is (= ["app_some_counter_total{a=\"a\",b=\"b\",} 100.0"]
              (filter-metric "app_some_counter" body)))
       (is (= ["app_some_gauge_km_h{c=\"c\",d=\"d\",} 1.0"]
              (filter-metric "app_some_gauge" body)))
-      (is (approximately=
-            {"app_some_timer_seconds_max{e=\"e\",f=\"f\",}"                       "0.1"
-             "app_some_timer_seconds_count{e=\"e\",f=\"f\",}"                     "1.0"
-             "app_some_timer_seconds_sum{e=\"e\",f=\"f\",}"                       "0.1"
-             "app_some_timer_seconds{e=\"e\",f=\"f\",quantile=\"0.9\",}"          "0.096"
-             "app_some_timer_seconds{e=\"e\",f=\"f\",quantile=\"0.95\",}"         "0.096"
-             "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.1\",}"         "0.0"
-             "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.111848106\",}" "1.0"
-             "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.12\",}"        "1.0"
-             "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.2\",}"         "1.0"
-             "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"+Inf\",}"        "1.0"}
-            (->> (filter-metric "app_some_timer" body)
-                 (map #(vec (str/split % #" ")))
-                 (into {}))
-            0.01)))))
+      (let [res (->> (filter-metric "app_some_timer" body)
+                     (map #(vec (str/split % #" ")))
+                     (into {}))]
+        (is (approximately=
+              {"app_some_timer_seconds_max{e=\"e\",f=\"f\",}"                       "0.1"
+               "app_some_timer_seconds_count{e=\"e\",f=\"f\",}"                     "1.0"
+               "app_some_timer_seconds_sum{e=\"e\",f=\"f\",}"                       "0.1"
+               "app_some_timer_seconds{e=\"e\",f=\"f\",quantile=\"0.9\",}"          "0.096"
+               "app_some_timer_seconds{e=\"e\",f=\"f\",quantile=\"0.95\",}"         "0.096"
+               "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.1\",}"         "0.0"
+               "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.111848106\",}" "1.0"
+               "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.12\",}"        "1.0"
+               "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.2\",}"         "1.0"
+               "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"+Inf\",}"        "1.0"}
+              res
+              0.01))))))
