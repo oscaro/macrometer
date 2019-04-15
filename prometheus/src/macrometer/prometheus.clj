@@ -8,7 +8,8 @@
            (io.micrometer.core.instrument.binder MeterBinder)
            (io.micrometer.core.instrument.binder.jvm ClassLoaderMetrics JvmGcMetrics JvmMemoryMetrics JvmThreadMetrics)
            (io.micrometer.core.instrument.binder.system ProcessorMetrics FileDescriptorMetrics UptimeMetrics)
-           (io.prometheus.client.hotspot VersionInfoExports)))
+           (io.prometheus.client.hotspot VersionInfoExports)
+           (macrometer.binder RuntimeMetrics)))
 
 (def config
   {:component/metrics {:route            "/metrics"
@@ -36,7 +37,8 @@
                    (JvmThreadMetrics.)
                    (FileDescriptorMetrics.)
                    (ProcessorMetrics.)
-                   (UptimeMetrics.)]]
+                   (UptimeMetrics.)
+                   (RuntimeMetrics.)]]
     (.bindTo ^MeterBinder metrics reg))
   (doseq [collector [(VersionInfoExports.)]]
     (.register ^Collector collector)))

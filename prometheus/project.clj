@@ -12,4 +12,6 @@
                                   [io.pedestal/pedestal.jetty "0.5.5"]]
                    :source-paths ["dev"]}}
   :repl-options {:init-ns user}
-  :global-vars {*warn-on-reflection* true})
+  :global-vars {*warn-on-reflection* true}
+  :java-source-paths ["java"]
+  :javac-options ["-target" "1.8" "-source" "1.8"])
