@@ -5,6 +5,8 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
 
+import java.util.function.Supplier;
+
 import static java.lang.System.getProperty;
 
 @SuppressWarnings("HardCodedStringLiteral")
@@ -43,13 +45,12 @@ public class RuntimeMetrics implements MeterBinder {
         }
 
         // VersionInfo
-        Counter.builder("jvm.info")
+        Gauge.builder("jvm.info", () -> 1.0)
           .description("JVM version info")
           .tag("version", getProperty("java.runtime.version", UNKNOWN))
           .tag("vendor", getProperty("java.vm.vendor", UNKNOWN))
           .tag("runtime", getProperty("java.runtime.name", UNKNOWN))
-          .register(registry)
-          .increment();
+          .register(registry);
 
     }
 }
