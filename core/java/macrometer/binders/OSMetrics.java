@@ -1,4 +1,4 @@
-package macrometer.binder;
+package macrometer.binders;
 
 import com.sun.management.OperatingSystemMXBean;
 import io.micrometer.core.instrument.FunctionCounter;
@@ -9,9 +9,11 @@ import io.micrometer.core.instrument.binder.MeterBinder;
 import java.lang.management.ManagementFactory;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static macrometer.binder.RuntimeMetrics.BYTES;
+import static macrometer.binders.RuntimeMetrics.BYTES;
 
-@SuppressWarnings("HardCodedStringLiteral")
+/**
+ * @author Nicolas Estrada.
+ */
 public class OSMetrics implements MeterBinder {
 
     private final OperatingSystemMXBean osBean;

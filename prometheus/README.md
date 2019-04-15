@@ -12,16 +12,20 @@ Look at `test/macrometer/prometheus_test.clj`
 ```clojure
 {:component/metrics {:route "/metrics"
                      :global? true
-                     :include-hotspot? false}}
+                     :binders {:hotspot? true
+                               :logging? true
+                               :kafka?   true}}}
 ```
                      
 ##### Attributes
 
-| key                 | type      | default      | description
-|---------------------|-----------|--------------|-----------------------
-| `:route`            | `string`  | `"/metrics"` | Path for the prometheus endpoint 
-| `:global?`          | `boolean` | `true`       | Add to the global (ie. default) registry
-| `:include-hotspot?` | `boolean` | `false`      | If `true`, include default hotspot metrics (like jmx)
+| key                    | type      | default      | description
+|------------------------|-----------|--------------|-----------------------
+| `:route`               | `string`  | `"/metrics"` | Path for the prometheus endpoint 
+| `:global?`             | `boolean` | `true`       | Add to the global (ie. default) registry
+| `[:binders :hotspot?`] | `boolean` | `false`      | If `true`, include default hotspot metrics
+| `[:binders :logging?`] | `boolean` | `false`      | If `true`, include logback event metrics
+| `[:binders :kafka?`]   | `boolean` | `false`      | If `true`, include kafka consumer metrics
 
 ## License
 

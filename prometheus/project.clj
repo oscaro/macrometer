@@ -13,6 +13,4 @@
                                   [io.prometheus/simpleclient_hotspot "0.6.0"]]
                    :source-paths ["dev"]}}
   :repl-options {:init-ns user}
-  :global-vars {*warn-on-reflection* true}
-  :java-source-paths ["java"]
-  :javac-options ["-target" "1.8" "-source" "1.8"])
+  :global-vars {*warn-on-reflection* true})

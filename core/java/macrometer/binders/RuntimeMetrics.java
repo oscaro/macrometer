@@ -1,15 +1,14 @@
-package macrometer.binder;
+package macrometer.binders;
 
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
 
-import java.util.function.Supplier;
-
 import static java.lang.System.getProperty;
 
-@SuppressWarnings("HardCodedStringLiteral")
+/**
+ * @author Nicolas Estrada.
+ */
 public class RuntimeMetrics implements MeterBinder {
 
     private static final String UNKNOWN = "unknown";
