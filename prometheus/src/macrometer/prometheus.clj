@@ -4,12 +4,11 @@
             [macrometer.core :refer [default-registry clear-meters]])
   (:import (io.micrometer.core.instrument Clock)
            (io.micrometer.prometheus PrometheusMeterRegistry PrometheusConfig)
-           (io.prometheus.client CollectorRegistry Collector)
+           (io.prometheus.client CollectorRegistry)
            (io.micrometer.core.instrument.binder MeterBinder)
            (io.micrometer.core.instrument.binder.jvm ClassLoaderMetrics JvmGcMetrics JvmMemoryMetrics JvmThreadMetrics)
            (io.micrometer.core.instrument.binder.system ProcessorMetrics FileDescriptorMetrics UptimeMetrics)
-           (io.prometheus.client.hotspot VersionInfoExports)
-           (macrometer.binder RuntimeMetrics)))
+           (macrometer.binder RuntimeMetrics OSMetrics)))
 
 (def config
   {:component/metrics {:route            "/metrics"
@@ -38,10 +37,9 @@
                    (FileDescriptorMetrics.)
                    (ProcessorMetrics.)
                    (UptimeMetrics.)
-                   (RuntimeMetrics.)]]
-    (.bindTo ^MeterBinder metrics reg))
-  (doseq [collector [(VersionInfoExports.)]]
-    (.register ^Collector collector)))
+                   (RuntimeMetrics.)
+                   (OSMetrics.)]]
+    (.bindTo ^MeterBinder metrics reg)))
 
 (defmethod ig/init-key :component/metrics [_ {:keys [route global? include-hotspot?] :as sys}]
   (log/info "Starting prometheus metrics component")

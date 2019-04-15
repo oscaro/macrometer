@@ -1,6 +1,6 @@
-(defproject com.oscaro/macrometer.core "1.1.3.3-SNAPSHOT"
+(defproject com.oscaro/macrometer.core "1.1.4.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
-                 [io.micrometer/micrometer-core "1.1.3"]]
+                 [io.micrometer/micrometer-core "1.1.4"]]
   :repositories [["oscaro" {:url "https://artifactory.oscaroad.com/artifactory/libs-release-local"}]
                  ["oscaro-ext" {:url "https://artifactory.oscaroad.com/artifactory/ext-release-local"}]
                  ["oscaro-snapshot" {:url "https://artifactory.oscaroad.com/artifactory/libs-snapshot-local"}]]

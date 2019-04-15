@@ -1,13 +1,18 @@
 package macrometer.binder;
 
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
 
+import static java.lang.System.getProperty;
+
 @SuppressWarnings("HardCodedStringLiteral")
 public class RuntimeMetrics implements MeterBinder {
 
-    private static final String BYTES = "bytes";
+    private static final String UNKNOWN = "unknown";
+    static final String BYTES = "bytes";
+
     private final Runtime runtime;
 
     public RuntimeMetrics() {
@@ -36,5 +41,15 @@ public class RuntimeMetrics implements MeterBinder {
               .baseUnit(BYTES)
               .register(registry);
         }
+
+        // VersionInfo
+        Counter.builder("jvm.info")
+          .description("JVM version info")
+          .tag("version", getProperty("java.runtime.version", UNKNOWN))
+          .tag("vendor", getProperty("java.vm.vendor", UNKNOWN))
+          .tag("runtime", getProperty("java.runtime.name", UNKNOWN))
+          .register(registry)
+          .increment();
+
     }
 }
