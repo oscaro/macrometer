@@ -34,7 +34,7 @@ public class GCMetrics implements MeterBinder {
                     GarbageCollectorMXBean::getCollectionTime,
                     MILLISECONDS)
                   .description("The total number of collections that have occurred and the approximate elapsed time")
-                  .tag("name", gcBean.getName())
+                  .tag("gc", gcBean.getName())
                   .register(registry);
 
             }
