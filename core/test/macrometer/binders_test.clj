@@ -15,7 +15,8 @@
                           (map #(.getId ^Meter %))
                           (map #(.getName ^Meter$Id %))
                           set)]
-    (is (= #{"free.physical.memory"
+    (is (= #{"committed.virtual.memory"
+             "free.physical.memory"
              "free.swap.space"
              "jvm.buffer.count"
              "jvm.buffer.memory.used"
@@ -42,6 +43,7 @@
              "process.cpu.usage"
              "process.files.max"
              "process.files.open"
+             "process.resident.memory"
              "process.start.time"
              "process.uptime"
              "process.virtual.memory"

@@ -16,7 +16,7 @@
 
 (defn with-service
   [f]
-  (let [sys (ig/init (assoc-in config [:component/metrics :binders] {:logging? true}))]
+  (let [sys (ig/init (assoc-in config [:component/metrics :binders] {:hotspot? true}))]
     (try
       (binding [*service* (->> (:component/metrics sys)
                                (merge {::http/port 8888 ::http/type :jetty})
