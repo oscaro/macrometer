@@ -3,9 +3,9 @@
   (:import (io.micrometer.core.instrument MeterRegistry)
            (io.micrometer.core.instrument.binder.jvm ClassLoaderMetrics JvmGcMetrics JvmMemoryMetrics JvmThreadMetrics)
            (io.micrometer.core.instrument.binder.system FileDescriptorMetrics ProcessorMetrics UptimeMetrics)
-           (macrometer.binders GCMetrics OSMetrics RuntimeMetrics)
            (io.micrometer.core.instrument.binder MeterBinder)
-           (io.micrometer.core.instrument.binder.kafka KafkaConsumerMetrics)))
+           (io.micrometer.core.instrument.binder.kafka KafkaConsumerMetrics)
+           (com.oscaro.micrometer.binders GCMetrics OSMetrics RuntimeMetrics)))
 
 (def logback-present?
   (try
