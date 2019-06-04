@@ -82,12 +82,12 @@
       (is (= 4 (count a-timer)))
       (is (= 1.0 (total-time a-timer :minutes)))))
 
-  (testing "adding new tags in fact creates a new meter underneath"
-    (record a-timer 1 :minutes :c "c")
-    (record-fn a-timer #(fast-forward reg 1 :minutes) :c "c")
+  (testing "changing existing tags in fact creates a new meter underneath"
+    (record a-timer 1 :minutes :a "c")
+    (record-fn a-timer #(fast-forward reg 1 :minutes) :a "c")
     (let [s (start reg)]
       (fast-forward reg 1 :minutes)
-      (stop a-timer s :c "c"))
-    (is (= 3 (count a-timer :c "c")))
-    (is (= 3.0 (total-time a-timer :minutes :c "c")))
+      (stop a-timer s :a "c"))
+    (is (= 3 (count a-timer :a "c")))
+    (is (= 3.0 (total-time a-timer :minutes :a "c")))
     (is (= 1.0 (total-time a-timer :minutes)) "Old meter without additional tags remains unchanged")))

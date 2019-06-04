@@ -41,8 +41,8 @@
     (increment a-counter 10.5)
     (is (= 11.5 (count a-counter))))
 
-  (testing "adding new tags in fact creates a new meter underneath"
-    (increment a-counter :c "c")
-    (increment a-counter 2 :c "c")
-    (is (= 3.0 (count a-counter :c "c")))
+  (testing "changing existing tags in fact creates a new meter underneath"
+    (increment a-counter :a "c")
+    (increment a-counter 2 :a "c")
+    (is (= 3.0 (count a-counter :a "c")))
     (is (= 11.5 (count a-counter)) "Old meter without additional tags remains unchanged")))

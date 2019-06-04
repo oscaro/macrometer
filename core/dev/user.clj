@@ -2,10 +2,10 @@
   (:require [clojure.pprint :refer [pprint]]
             [clojure.repl :refer [doc pst source]]
             [clojure.tools.namespace.repl :refer [refresh]]
-            [macrometer.core :refer :all]))
+            [macrometer.core :as m]))
 
 (comment
   (refresh)
-  (all-meters)
-  (clear-meters)
+  (m/all-meters)
+  (m/clear-meters)
   )
