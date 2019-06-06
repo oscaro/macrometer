@@ -25,9 +25,11 @@
   [reg]
   {:name  :json-metrics
    :enter (fn [ctx] (assoc ctx :response {:status 200
-                                          :body   (-> (m/all-meters reg)
-                                                      pr-str
-                                                      clojure.edn/read-string)}))})
+                                          :body   (->> (m/all-meters reg)
+                                                       pr-str
+                                                       clojure.edn/read-string
+                                                       (group-by #(get-in % [:id :name]))
+                                                       (into (sorted-map)))}))})
 
 (defn- prometheus-registry
   []

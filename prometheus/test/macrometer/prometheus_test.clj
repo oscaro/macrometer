@@ -105,9 +105,9 @@
 
   (testing "/metrics.json route"
     (let [{:keys [status body] :as resp} (response-for *service* :get "/metrics.json")
-          get-meter (fn [body n] (->> (json/decode body true)
-                                      (filter #(= n (get-in % [:id :name])))
-                                      first))]
+          get-meter (fn [body n] (-> (json/decode body true)
+                                     (get (keyword n))
+                                     first))]
       (println "resp:" resp)
       (is (= 200 status))
       (is (= {:id      {:name        "app.some.counter"
