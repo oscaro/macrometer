@@ -10,7 +10,8 @@
              [counters :as c]
              [gauges :as g]
              [timers :as t]]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [cheshire.core :as json]))
 
 (def ^:dynamic *service* nil)
 
@@ -100,4 +101,25 @@
                "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"0.2\",}"         "1.0"
                "app_some_timer_seconds_bucket{e=\"e\",f=\"f\",le=\"+Inf\",}"        "1.0"}
               res
-              0.01))))))
+              0.01)))))
+
+  (testing "/metrics.json route"
+    (let [{:keys [status body] :as resp} (response-for *service* :get "/metrics.json")
+          get-meter (fn [body n] (->> (json/decode body true)
+                                      (filter #(= n (get-in % [:id :name])))
+                                      first))]
+      (println "resp:" resp)
+      (is (= 200 status))
+      (is (= {:id      {:name        "app.some.counter"
+                        :type        "counter"
+                        :tags        {:a "a", :b "b"}
+                        :description "This is a counter"}
+              :measure [{:stat "count" :val 100.0}]}
+             (get-meter body "app.some.counter")))
+      (is (= {:id      {:name        "app.some.gauge"
+                        :type        "gauge"
+                        :tags        {:c "c" :d "d"}
+                        :description "This is a gauge"
+                        :unit        "km/h"}
+              :measure [{:stat "value" :val 1.0}]}
+             (get-meter body "app.some.gauge"))))))

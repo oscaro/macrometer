@@ -1,10 +1,11 @@
-(defproject com.oscaro/macrometer.prometheus "1.1.4.0"
-  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
+(defproject com.oscaro/macrometer.prometheus "1.1.4.1-SNAPSHOT"
+  :dependencies [[org.clojure/clojure "1.10.1-RC1" :scope "provided"]
                  [org.clojure/tools.logging "0.4.1"]
                  [com.oscaro/macrometer.core "1.1.4.0"]
                  [io.micrometer/micrometer-registry-prometheus "1.1.4"]
                  [integrant "0.7.0"]
-                 [io.prometheus/simpleclient_common "0.6.0"]]
+                 [io.prometheus/simpleclient_common "0.6.0"]
+                 [io.pedestal/pedestal.service "0.5.5" :scope "provided"]]
   :repositories [["oscaro" {:url "https://artifactory.oscaroad.com/artifactory/libs-release-local"}]
                  ["oscaro-ext" {:url "https://artifactory.oscaroad.com/artifactory/ext-release-local"}]
                  ["oscaro-snapshot" {:url "https://artifactory.oscaroad.com/artifactory/libs-snapshot-local"}]]

@@ -1,4 +1,4 @@
-(defproject com.oscaro/macrometer "1.1.4.0-SNAPSHOT"
+(defproject com.oscaro/macrometer "1.1.4.1-SNAPSHOT"
   :plugins [[lein-sub "0.3.0"]]
   :sub ["core"
         "prometheus"]
