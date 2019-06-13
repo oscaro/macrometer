@@ -1,6 +1,7 @@
 (defproject com.oscaro/macrometer "1.1.4.1-SNAPSHOT"
   :plugins [[lein-sub "0.3.0"]]
   :sub ["core"
+        "jmx"
         "prometheus"]
   :description "Clojure wrapper for http://micrometer.io/"
   :url "https://gitlab.oscaroad.com/it-dev/macrometer"

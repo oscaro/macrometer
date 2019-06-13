@@ -34,6 +34,15 @@ Branch name is '$branchName'"""
                 }
             }
 
+            stage('JMX') {
+                dir('jmx') {
+                    lein '-U deps'
+                    lein 'test'
+                    lein 'jar'
+                    lein 'deploy'
+                }
+            }
+
             stage('Prometheus') {
                 dir('prometheus') {
                     lein '-U deps'
