@@ -1,5 +1,5 @@
-(defproject com.oscaro/macrometer.core "1.1.4.0"
-  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
+(defproject com.oscaro/macrometer.core "1.1.4.1"
+  :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [io.micrometer/micrometer-core "1.1.4"]
                  [com.oscaro/micrometer-binders "0.1.0"]]
   :repositories [["oscaro" {:url "https://artifactory.oscaroad.com/artifactory/libs-release-local"}]

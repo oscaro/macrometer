@@ -1,6 +1,7 @@
 (ns macrometer.prometheus
   (:require [clojure.tools.logging :as log]
             [integrant.core :as ig]
+            [io.pedestal.http :as http]
             [macrometer
              [core :as m :refer [default-registry]]
              [binders :as b]])
@@ -19,6 +20,16 @@
   [^PrometheusMeterRegistry reg]
   {:name  :prometheus-metrics
    :enter (fn [ctx] (assoc ctx :response {:status 200 :body (.scrape reg)}))})
+
+(defn- json-metrics
+  [reg]
+  {:name  :json-metrics
+   :enter (fn [ctx] (assoc ctx :response {:status 200
+                                          :body   (->> (m/all-meters reg)
+                                                       pr-str
+                                                       clojure.edn/read-string
+                                                       (group-by #(get-in % [:id :name]))
+                                                       (into (sorted-map)))}))})
 
 (defn- prometheus-registry
   []
@@ -41,7 +52,8 @@
     (add-binders reg binders)
     (assoc sys
       :registry reg
-      :io.pedestal.http/routes #{[route :get (prometheus-metrics reg)]})))
+      :io.pedestal.http/routes #{[route :get (prometheus-metrics reg)]
+                                 [(str route ".json") :get [http/json-body (json-metrics reg)]]})))
 
 (defmethod ig/halt-key! :component/metrics [_ {:keys [global? ^PrometheusMeterRegistry registry] :as sys}]
   (log/info "Stopping prometheus metrics component")
