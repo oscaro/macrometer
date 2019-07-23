@@ -1,5 +1,5 @@
-(defproject com.oscaro/macrometer.prometheus "1.1.4.1-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.10.1-RC1" :scope "provided"]
+(defproject com.oscaro/macrometer.prometheus "1.1.4.1"
+  :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/tools.logging "0.4.1"]
                  [com.oscaro/macrometer.core "1.1.4.0"]
                  [io.micrometer/micrometer-registry-prometheus "1.1.4"]
