@@ -1,7 +1,7 @@
-(defproject com.oscaro/macrometer.prometheus "1.2.0.0-SNAPSHOT"
+(defproject com.oscaro/macrometer.prometheus "1.2.0.0"
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/tools.logging "0.5.0"]
-                 [com.oscaro/macrometer.core "1.2.0.0-SNAPSHOT"]
+                 [com.oscaro/macrometer.core "1.2.0.0"]
                  [io.micrometer/micrometer-registry-prometheus "1.2.0"]
                  [integrant "0.7.0"]
                  [io.prometheus/simpleclient_common "0.6.0"]
