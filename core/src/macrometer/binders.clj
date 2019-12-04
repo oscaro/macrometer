@@ -56,4 +56,4 @@
   ([^MeterRegistry reg]
    (let [set-executor! (fn [f n e] (f (monitor-executor n e {:registry reg})))]
      (set-executor! set-agent-send-executor! "agent-send-executor" Agent/pooledExecutor)
-     (set-executor! set-agent-send-off-executor! "agent-send-off-executor" Agent/pooledExecutor))))
+     (set-executor! set-agent-send-off-executor! "agent-send-off-executor" Agent/soloExecutor))))
