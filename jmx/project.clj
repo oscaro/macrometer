@@ -1,7 +1,7 @@
-(defproject com.oscaro/macrometer.jmx "1.3.1.0-SNAPSHOT"
+(defproject com.oscaro/macrometer.jmx "1.3.1.0"
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/tools.logging "0.5.0"]
-                 [com.oscaro/macrometer.core "1.3.1.0-SNAPSHOT"]
+                 [com.oscaro/macrometer.core "1.3.1.0"]
                  [io.micrometer/micrometer-registry-jmx "1.3.1"]
                  [io.dropwizard.metrics/metrics-jmx "4.1.1"]
                  [integrant "0.7.0"]]
