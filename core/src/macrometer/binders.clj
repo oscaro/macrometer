@@ -1,11 +1,13 @@
 (ns macrometer.binders
-  (:require [macrometer.core :refer [default-registry]])
+  (:require [macrometer.core :refer [default-registry ->tags]])
   (:import (io.micrometer.core.instrument MeterRegistry)
-           (io.micrometer.core.instrument.binder.jvm ClassLoaderMetrics JvmGcMetrics JvmMemoryMetrics JvmThreadMetrics)
+           (io.micrometer.core.instrument.binder.jvm ClassLoaderMetrics JvmGcMetrics JvmMemoryMetrics JvmThreadMetrics ExecutorServiceMetrics)
            (io.micrometer.core.instrument.binder.system FileDescriptorMetrics ProcessorMetrics UptimeMetrics)
            (io.micrometer.core.instrument.binder MeterBinder)
            (io.micrometer.core.instrument.binder.kafka KafkaConsumerMetrics)
-           (com.oscaro.micrometer.binders GCMetrics OSMetrics RuntimeMetrics)))
+           (com.oscaro.micrometer.binders GCMetrics OSMetrics RuntimeMetrics)
+           (java.util.concurrent Executor)
+           (clojure.lang Agent)))
 
 (def logback-present?
   (try
@@ -41,3 +43,17 @@
   ([^MeterRegistry reg]
    (when logback-present?
      `(.bindTo (io.micrometer.core.instrument.binder.logging.LogbackMetrics.) ~reg))))
+
+(defn monitor-executor
+  "Record metrics on the use of an executor"
+  ([n executor] (monitor-executor n executor nil))
+  ([^String n ^Executor executor {:keys [registry tags] :or {registry default-registry}}]
+   (ExecutorServiceMetrics/monitor ^MeterRegistry registry executor n (->tags tags))))
+
+(defn add-executor-metrics
+  "Adds executor metrics (where possible) to the registry"
+  ([] (add-executor-metrics default-registry))
+  ([^MeterRegistry reg]
+   (let [set-executor! (fn [f n e] (f (monitor-executor n e {:registry reg})))]
+     (set-executor! set-agent-send-executor! "agent-send-executor" Agent/pooledExecutor)
+     (set-executor! set-agent-send-off-executor! "agent-send-off-executor" Agent/soloExecutor))))
