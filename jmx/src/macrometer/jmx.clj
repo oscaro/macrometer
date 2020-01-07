@@ -11,9 +11,10 @@
 (def config
   {:component/metrics {:domain  "metrics"
                        :global? true
-                       :binders {:hotspot? false
-                                 :logging? false
-                                 :kafka?   false}}})
+                       :binders {:hotspot?   false
+                                 :logging?   false
+                                 :kafka?     false
+                                 :executors? false}}})
 
 (defn ^JmxMeterRegistry jmx-registry
   [domain]
@@ -24,10 +25,11 @@
     (JmxMeterRegistry. cfg Clock/SYSTEM)))
 
 (defn- add-binders
-  [reg {:keys [hotspot? logging? kafka?]}]
+  [reg {:keys [hotspot? logging? kafka? executors?]}]
   (when hotspot? (b/add-hotspot-metrics reg))
   (when logging? (b/add-logging-metrics reg))
-  (when kafka? (b/add-kafka-metrics reg)))
+  (when kafka? (b/add-kafka-metrics reg))
+  (when executors? (b/add-executor-metrics reg)))
 
 (defmethod ig/init-key :component/metrics [_ {:keys [domain global? binders] :as sys}]
   (log/info "Starting jmx metrics component")
