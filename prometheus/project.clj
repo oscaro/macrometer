@@ -1,8 +1,8 @@
-(defproject com.oscaro/macrometer.prometheus "1.3.1.1"
+(defproject com.oscaro/macrometer.prometheus "1.3.2.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.10.1" :scope "provided"]
                  [org.clojure/tools.logging "0.5.0"]
-                 [com.oscaro/macrometer.core "1.3.1.1"]
-                 [io.micrometer/micrometer-registry-prometheus "1.3.1"]
+                 [com.oscaro/macrometer.core "1.3.2.0-SNAPSHOT"]
+                 [io.micrometer/micrometer-registry-prometheus "1.3.2"]
                  [integrant "0.7.0"]
                  [io.prometheus/simpleclient_common "0.7.0"]
                  [io.pedestal/pedestal.service "0.5.7" :exclusions [org.clojure/core.async] :scope "provided"]]

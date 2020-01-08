@@ -1,4 +1,4 @@
-(defproject com.oscaro/macrometer "1.3.1.1"
+(defproject com.oscaro/macrometer "1.3.2.0-SNAPSHOT"
   :plugins [[lein-sub "0.3.0"]]
   :sub ["core"
         "jmx"
