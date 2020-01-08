@@ -1,7 +1,16 @@
 (ns macrometer.core
-  (:require [macrometer.misc])
-  (:import (io.micrometer.core.instrument MeterRegistry Metrics Tag
-                                          Meter Counter Gauge Timer)
+  (:require [clojure.core.protocols :refer [Datafiable]]
+            [clojure.datafy :refer [datafy]]
+            [macrometer.misc :as m])
+  (:import (io.micrometer.core.instrument Counter
+                                          Gauge
+                                          Measurement
+                                          Meter
+                                          Meter$Id
+                                          MeterRegistry
+                                          Metrics
+                                          Tag
+                                          Timer)
            (io.micrometer.core.instrument.composite CompositeMeterRegistry)))
 
 (def
@@ -10,6 +19,7 @@
   default-registry Metrics/globalRegistry)
 
 (defn- kv->tag [k v] (when v (Tag/of (name k) (str v))))
+(defn- tag->kv [^Tag t] [(keyword (.getKey t)) (.getValue t)])
 (defn ^Iterable ->tags
   "Convenience function for generating a sequence of tags"
   [tags]
@@ -61,3 +71,25 @@
   ([n] (timers n default-registry))
   ([n ^MeterRegistry reg]
    (meters-by-name Timer n reg)))
+
+(extend-protocol Datafiable
+
+  Measurement
+  (datafy [x]
+    {:stat (-> x .getStatistic .getTagValueRepresentation keyword)
+     :val  (.getValue x)})
+
+  Meter
+  (datafy [x]
+    {:id      (datafy (.getId x))
+     :measure (map datafy (.measure x))})
+
+  Meter$Id
+  (datafy [x]
+    (let [desc (.getDescription x)
+          unit (.getBaseUnit x)]
+      (cond-> {:name (.getName x)
+               :type (m/enum->kw (.getType x))
+               :tags (into {} (map tag->kv) (.getTagsAsIterable x))}
+        desc (assoc :description desc)
+        unit (assoc :unit unit)))))

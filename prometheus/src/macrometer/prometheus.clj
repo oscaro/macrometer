@@ -1,5 +1,6 @@
 (ns macrometer.prometheus
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.datafy :refer [datafy]]
+            [clojure.tools.logging :as log]
             [integrant.core :as ig]
             [io.pedestal.http :as http]
             [macrometer
@@ -27,8 +28,7 @@
   {:name  :json-metrics
    :enter (fn [ctx] (assoc ctx :response {:status 200
                                           :body   (->> (m/all-meters reg)
-                                                       pr-str
-                                                       clojure.edn/read-string
+                                                       (map datafy)
                                                        (group-by #(get-in % [:id :name]))
                                                        (into (sorted-map)))}))})
 

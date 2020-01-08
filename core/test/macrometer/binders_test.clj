@@ -2,9 +2,9 @@
   (:require [clojure.test :refer :all]
             [macrometer.binders :refer :all]
             [macrometer.test-utils :refer :all]
+            [clojure.datafy :refer [datafy]]
             [macrometer.core :as m])
-  (:import (io.micrometer.core.instrument Meter Meter$Id)
-           (java.util.concurrent Executors ExecutorService)))
+  (:import (java.util.concurrent Executors ExecutorService)))
 
 (use-fixtures
   :each
@@ -13,8 +13,9 @@
 (defn- metric-names
   []
   (->> (m/all-meters *registry*)
-       (map #(.getId ^Meter %))
-       (map #(.getName ^Meter$Id %))
+       (map datafy)
+       (map :id)
+       (map :name)
        set))
 
 (deftest add-hotspot-metrics-test
