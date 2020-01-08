@@ -3,10 +3,10 @@
             [integrant.core :as ig]
             [macrometer
              [core :as m :refer [default-registry]]
+             [misc :refer [->duration]]
              [binders :as b]])
   (:import (io.micrometer.core.instrument Clock)
-           (io.micrometer.jmx JmxConfig JmxMeterRegistry)
-           (java.time Duration)))
+           (io.micrometer.jmx JmxConfig JmxMeterRegistry)))
 
 (def config
   {:component/metrics {:domain  "metrics"
@@ -20,7 +20,7 @@
   [domain]
   (let [cfg (proxy [JmxConfig] []
               (domain [] domain)
-              (step [] (Duration/ofMinutes 1))
+              (step [] (->duration [1 :minutes]))
               (get [_]))]
     (JmxMeterRegistry. cfg Clock/SYSTEM)))
 

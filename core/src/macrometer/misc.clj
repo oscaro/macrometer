@@ -1,5 +1,6 @@
 (ns macrometer.misc
-  (:require [clojure.string :as str])
+  (:require [clojure.core.protocols :refer [Datafiable]]
+            [clojure.string :as str])
   (:import (java.time Duration)
            (java.time.temporal ChronoUnit)
            (java.util EnumSet)
@@ -29,3 +30,7 @@
    => #object[java.time.Duration 0x4d156026 \"PT10S\"]"
   [[amt unit]]
   (Duration/of amt (get chrono-units unit)))
+
+(extend-protocol Datafiable
+  Duration
+  (datafy [x] {:seconds (.getSeconds x) :nanos (.getNano x)}))
