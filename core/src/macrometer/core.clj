@@ -18,16 +18,16 @@
     :doc "Default registry used by public API functions when no explicit registry argument is given"}
   default-registry Metrics/globalRegistry)
 
-(defn- kv->tag [k v] (when v (Tag/of (name k) (str v))))
+(defn- kv->tag [k v] (when (some? v) (Tag/of (name k) (str v))))
 (defn- tag->kv [^Tag t] [(keyword (.getKey t)) (.getValue t)])
-(defn ^Iterable ->tags
+(defn ->tags
   "Convenience function for generating a sequence of tags"
-  [tags]
-  (let [add-tag (fn [tags [k v]]
+  ^Iterable [tags]
+  (let [add-tag (fn [tags k v]
                   (if-let [tag (kv->tag k v)]
                     (conj tags tag)
                     tags))]
-    (reduce add-tag [] tags)))
+    (reduce-kv add-tag [] tags)))
 
 (defn unregister-meter
   "Removes a meter"

@@ -9,5 +9,7 @@
     nil []
     {} []
     {:a 1 :b 2} [(Tag/of "a" "1") (Tag/of "b" "2")]
-    ; Null values are not allowed but should throw an NPE
+    ; False values are allowed
+    {:some false} [(Tag/of "some" "false")]
+    ; Null values are not allowed but should not throw an NPE
     {"15365489631" nil} []))
