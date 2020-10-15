@@ -5,7 +5,7 @@
   :repositories [["oscaro" {:url "https://artifactory.oscaroad.com/artifactory/libs-release-local"}]
                  ["oscaro-ext" {:url "https://artifactory.oscaroad.com/artifactory/ext-release-local"}]
                  ["oscaro-snapshot" {:url "https://artifactory.oscaroad.com/artifactory/libs-snapshot-local"}]]
-  :profiles {:dev      {:dependencies [[io.pedestal/pedestal.service-tools "0.5.8" :exclusions [commons-codec]]
+  :profiles {:dev      {:dependencies [[io.pedestal/pedestal.service-tools "0.5.8"]
                                        [io.pedestal/pedestal.jetty "0.5.8"]]
                         :source-paths ["dev"]}
              :provided {:dependencies [[org.clojure/clojure "1.10.1"]
