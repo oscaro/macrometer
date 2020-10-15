@@ -4,8 +4,7 @@
             [integrant.core :as ig]
             [macrometer
              [core :as m :refer [default-registry]]
-             [binders :as b]]
-            [ring.util.response :as rr])
+             [binders :as b]])
   (:import (io.micrometer.core.instrument Clock)
            (io.micrometer.prometheus PrometheusMeterRegistry PrometheusConfig)
            (io.prometheus.client CollectorRegistry)))
@@ -24,6 +23,10 @@
   [reg]
   {:name  :prometheus-metrics
    :enter (fn [ctx] (assoc ctx :response {:status 200 :body (scrape reg)}))})
+
+(defn- reitit-metrics
+  [reg _]
+  {:status 200 :body (scrape reg)})
 
 (defn- prometheus-registry
   []
@@ -48,7 +51,7 @@
     (assoc sys
       :registry reg
       :io.pedestal.http/routes #{[route :get (prometheus-metrics reg)]}
-      :reitit.http/routes [[route {:get (fn [_] (rr/response (scrape reg)))}]])))
+      :reitit.http/routes [[route {:get (partial reitit-metrics reg)}]])))
 
 (defmethod ig/halt-key! :component/metrics [_ {:keys [global? ^PrometheusMeterRegistry registry] :as sys}]
   (log/info "Stopping prometheus metrics component")

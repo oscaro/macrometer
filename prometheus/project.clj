@@ -1,5 +1,5 @@
-(defproject com.oscaro/macrometer.prometheus "1.3.2.0-SNAPSHOT"
-  :dependencies [[com.oscaro/macrometer.core "1.3.2.0-SNAPSHOT"]
+(defproject com.oscaro/macrometer.prometheus "1.3.2.0"
+  :dependencies [[com.oscaro/macrometer.core "1.3.2.0"]
                  [io.micrometer/micrometer-registry-prometheus "1.3.2"]
                  [io.prometheus/simpleclient_common "0.7.0"]]
   :repositories [["oscaro" {:url "https://artifactory.oscaroad.com/artifactory/libs-release-local"}]
@@ -10,7 +10,6 @@
                         :source-paths ["dev"]}
              :provided {:dependencies [[org.clojure/clojure "1.10.1"]
                                        [org.clojure/tools.logging "1.1.0"]
-                                       [integrant "0.8.0"]
-                                       [ring/ring-core "1.8.2"]]}}
+                                       [integrant "0.8.0"]]}}
   :repl-options {:init-ns user}
   :global-vars {*warn-on-reflection* true})
