@@ -21,7 +21,8 @@
   (let [cfg (proxy [JmxConfig] []
               (domain [] domain)
               (step [] (->duration [1 :minutes]))
-              (get [_]))]
+              (get [_])
+              (requireValid []))]
     (JmxMeterRegistry. cfg Clock/SYSTEM)))
 
 (defn- add-binders

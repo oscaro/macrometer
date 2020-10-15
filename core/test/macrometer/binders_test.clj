@@ -66,6 +66,8 @@
              "executor.active"
              "executor.completed"
              "executor.idle"
+             "executor.pool.core"
+             "executor.pool.max"
              "executor.pool.size"
              "executor.queue.remaining"
              "executor.queued"
