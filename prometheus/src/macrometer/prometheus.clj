@@ -2,7 +2,6 @@
   (:require [clojure.datafy :refer [datafy]]
             [clojure.tools.logging :as log]
             [integrant.core :as ig]
-            [io.pedestal.http :as http]
             [macrometer
              [core :as m :refer [default-registry]]
              [binders :as b]])
@@ -18,19 +17,16 @@
                                  :kafka?     false
                                  :executors? false}}})
 
-(defn- prometheus-metrics
-  [^PrometheusMeterRegistry reg]
-  {:name  :prometheus-metrics
-   :enter (fn [ctx] (assoc ctx :response {:status 200 :body (.scrape reg)}))})
+(defn- scrape [^PrometheusMeterRegistry reg] (.scrape reg))
 
-(defn- json-metrics
+(defn- prometheus-metrics
   [reg]
-  {:name  :json-metrics
-   :enter (fn [ctx] (assoc ctx :response {:status 200
-                                          :body   (->> (m/all-meters reg)
-                                                       (map datafy)
-                                                       (group-by #(get-in % [:id :name]))
-                                                       (into (sorted-map)))}))})
+  {:name  :prometheus-metrics
+   :enter (fn [ctx] (assoc ctx :response {:status 200 :body (scrape reg)}))})
+
+(defn- reitit-metrics
+  [reg _]
+  {:status 200 :body (scrape reg)})
 
 (defn- prometheus-registry
   []
@@ -54,8 +50,8 @@
     (add-binders reg binders)
     (assoc sys
       :registry reg
-      :io.pedestal.http/routes #{[route :get (prometheus-metrics reg)]
-                                 [(str route ".json") :get [http/json-body (json-metrics reg)]]})))
+      :io.pedestal.http/routes #{[route :get (prometheus-metrics reg)]}
+      :reitit.http/routes [[route {:get (partial reitit-metrics reg)}]])))
 
 (defmethod ig/halt-key! :component/metrics [_ {:keys [global? ^PrometheusMeterRegistry registry] :as sys}]
   (log/info "Stopping prometheus metrics component")
