@@ -3,7 +3,10 @@
             [macrometer.binders :refer :all]
             [macrometer.test-utils :refer :all]
             [clojure.datafy :refer [datafy]]
-            [macrometer.core :as m])
+            [macrometer.core :as m]
+            [io.pedestal.http.jetty :as jetty]
+            [io.pedestal.http.servlet :as servlet]
+            [clj-http.conn-mgr :as conn-mgr])
   (:import (java.util.concurrent Executors ExecutorService)))
 
 (use-fixtures
@@ -73,4 +76,32 @@
              "executor.queued"
              "executor.scheduled.once"
              "executor.scheduled.repetitively"}
+           (metric-names)))))
+
+(deftest monitor-jetty-test
+  (let [server (jetty/server {:io.pedestal.http/servlet (servlet/servlet :service (fn [& args]))}
+                             {:host "0.0.0.0"
+                              :port (+ 50000 (rand-int 5000))})]
+    (monitor-jetty (:server server) {:registry *registry*})
+    (is (= #{"jetty.connections.messages.out"
+             "jetty.threads.jobs"
+             "jetty.threads.config.min"
+             "jetty.connections.bytes.out"
+             "jetty.connections.messages.in"
+             "jetty.connections.bytes.in"
+             "jetty.threads.config.max"
+             "jetty.connections.max"
+             "jetty.threads.current"
+             "jetty.threads.idle"
+             "jetty.threads.busy"
+             "jetty.connections.current"}
+           (metric-names)))))
+
+(deftest monitor-conn-manager-test
+  (let [conn-mgr (conn-mgr/make-reusable-conn-manager {})]
+    (monitor-conn-manager conn-mgr "my-conn" {:registry *registry*})
+    (is (= #{"httpcomponents.httpclient.pool.total.connections"
+             "httpcomponents.httpclient.pool.total.max"
+             "httpcomponents.httpclient.pool.total.pending"
+             "httpcomponents.httpclient.pool.route.max.default"}
            (metric-names)))))

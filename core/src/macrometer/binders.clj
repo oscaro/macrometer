@@ -57,3 +57,37 @@
    (let [set-executor! (fn [f n e] (f (monitor-executor n e {:registry reg})))]
      (set-executor! set-agent-send-executor! "agent-send-executor" Agent/pooledExecutor)
      (set-executor! set-agent-send-off-executor! "agent-send-off-executor" Agent/soloExecutor))))
+
+(defmacro ^:private add-jetty-monitor-fn []
+  (when (try
+          (import '(org.eclipse.jetty.server Server)
+                  '(io.micrometer.core.instrument.binder.jetty JettyServerThreadPoolMetrics JettyConnectionMetrics))
+          true
+          (catch ClassNotFoundException _ false))
+    '(defn monitor-jetty
+       "Adds metrics for a jetty server
+  Requires jetty server in the classpath"
+       ([server] (monitor-jetty server {}))
+       ([server {:keys [tags registry] :or {registry default-registry tags {}}}]
+        (let [^Server server server]
+          (doto (JettyServerThreadPoolMetrics. (.getThreadPool server) (->tags tags))
+            (.bindTo registry))
+          (JettyConnectionMetrics/addToAllConnectors server registry (->tags tags)))))))
+
+(add-jetty-monitor-fn)
+
+(defmacro ^:private add-monitor-conn-manager-fn []
+  (when (try
+          (import '(org.apache.http.pool ConnPoolControl)
+                  '(io.micrometer.core.instrument.binder.httpcomponents PoolingHttpClientConnectionManagerMetricsBinder))
+          true
+          (catch ClassNotFoundException _ false))
+    '(defn monitor-conn-manager
+       "Adds metrics for a syncronous or asynchronous http connection manager
+  Requires apache http in the classpath"
+       ([conn-mgr meter-name] (monitor-conn-manager conn-mgr meter-name {}))
+       ([conn-mgr ^String meter-name {:keys [tags registry] :or {registry default-registry tags {}}}]
+        (doto (PoolingHttpClientConnectionManagerMetricsBinder. ^ConnPoolControl conn-mgr meter-name (->tags tags))
+          (.bindTo registry))))))
+
+(add-monitor-conn-manager-fn)
