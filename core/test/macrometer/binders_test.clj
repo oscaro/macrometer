@@ -4,10 +4,9 @@
             [macrometer.test-utils :refer :all]
             [clojure.datafy :refer [datafy]]
             [macrometer.core :as m]
-            [io.pedestal.http.jetty :as jetty]
-            [io.pedestal.http.servlet :as servlet]
             [clj-http.conn-mgr :as conn-mgr])
-  (:import (java.util.concurrent Executors ExecutorService)))
+  (:import (java.util.concurrent Executors ExecutorService)
+           (org.eclipse.jetty.server Server)))
 
 (use-fixtures
   :each
@@ -79,23 +78,24 @@
            (metric-names)))))
 
 (deftest monitor-jetty-test
-  (let [server (jetty/server {:io.pedestal.http/servlet (servlet/servlet :service (fn [& args]))}
-                             {:host "0.0.0.0"
-                              :port (+ 50000 (rand-int 5000))})]
-    (monitor-jetty (:server server) {:registry *registry*})
-    (is (= #{"jetty.connections.messages.out"
-             "jetty.threads.jobs"
-             "jetty.threads.config.min"
-             "jetty.connections.bytes.out"
-             "jetty.connections.messages.in"
-             "jetty.connections.bytes.in"
-             "jetty.threads.config.max"
-             "jetty.connections.max"
-             "jetty.threads.current"
-             "jetty.threads.idle"
-             "jetty.threads.busy"
-             "jetty.connections.current"}
-           (metric-names)))))
+  (let [server (Server. ^long (+ 50000 (rand-int 5000)))
+        t (future (.start server))]
+    (try
+      (monitor-jetty server {:registry *registry*})
+      (is (= #{"jetty.connections.messages.out"
+               "jetty.threads.jobs"
+               "jetty.threads.config.min"
+               "jetty.connections.bytes.out"
+               "jetty.connections.messages.in"
+               "jetty.connections.bytes.in"
+               "jetty.threads.config.max"
+               "jetty.connections.max"
+               "jetty.threads.current"
+               "jetty.threads.idle"
+               "jetty.threads.busy"
+               "jetty.connections.current"}
+             (metric-names)))
+      (finally (future-cancel t)))))
 
 (deftest monitor-conn-manager-test
   (let [conn-mgr (conn-mgr/make-reusable-conn-manager {})]
