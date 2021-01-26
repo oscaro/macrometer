@@ -7,7 +7,7 @@
                  ["oscaro-ext" {:url "https://artifactory.oscaroad.com/artifactory/ext-release-local"}]
                  ["oscaro-snapshot" {:url "https://artifactory.oscaroad.com/artifactory/libs-snapshot-local"}]]
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "1.0.0"]
-                                  [org.eclipse.jetty/jetty-server "11.0.0"]
+                                  [org.eclipse.jetty/jetty-server "9.4.36.v20210114"]
                                   [clj-http "3.11.0"]]
                    :source-paths ["dev"]}}
   :repl-options {:init-ns user}
