@@ -50,6 +50,7 @@
     (add-binders reg binders)
     (assoc sys
       :registry reg
+      :expose (fn expose-metrics [] (scrape reg))
       :io.pedestal.http/routes #{[route :get (prometheus-metrics reg)]}
       :reitit.http/routes [[route {:get (partial reitit-metrics reg)}]])))
 
