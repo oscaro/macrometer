@@ -1,5 +1,5 @@
-(defproject com.oscaro/macrometer.jmx "1.6.3.0"
-  :dependencies [[com.oscaro/macrometer.core "1.6.3.0"]
+(defproject com.oscaro/macrometer.jmx "1.6.3.1-SNAPSHOT"
+  :dependencies [[com.oscaro/macrometer.core "1.6.3.1-SNAPSHOT"]
                  [io.micrometer/micrometer-registry-jmx "1.6.3"]
                  [io.dropwizard.metrics/metrics-jmx "4.1.13"]]
   :repositories [["oscaro" {:url "https://artifactory.oscaroad.com/artifactory/libs-release-local"}]

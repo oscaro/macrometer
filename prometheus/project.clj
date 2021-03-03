@@ -1,5 +1,5 @@
-(defproject com.oscaro/macrometer.prometheus "1.6.3.0"
-  :dependencies [[com.oscaro/macrometer.core "1.6.3.0"]
+(defproject com.oscaro/macrometer.prometheus "1.6.3.1-SNAPSHOT"
+  :dependencies [[com.oscaro/macrometer.core "1.6.3.1-SNAPSHOT"]
                  [io.micrometer/micrometer-registry-prometheus "1.6.3"]]
   :repositories [["oscaro" {:url "https://artifactory.oscaroad.com/artifactory/libs-release-local"}]
                  ["oscaro-ext" {:url "https://artifactory.oscaroad.com/artifactory/ext-release-local"}]
