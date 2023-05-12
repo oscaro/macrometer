@@ -1,13 +1,18 @@
 (ns macrometer.binders
   (:require [macrometer.core :refer [default-registry ->tags]])
-  (:import (io.micrometer.core.instrument MeterRegistry)
-           (io.micrometer.core.instrument.binder.jvm ClassLoaderMetrics JvmGcMetrics JvmMemoryMetrics JvmThreadMetrics ExecutorServiceMetrics)
-           (io.micrometer.core.instrument.binder.system FileDescriptorMetrics ProcessorMetrics UptimeMetrics)
-           (io.micrometer.core.instrument.binder MeterBinder)
-           (io.micrometer.core.instrument.binder.kafka KafkaConsumerMetrics)
-           (com.oscaro.micrometer.binders GCMetrics OSMetrics RuntimeMetrics)
-           (java.util.concurrent Executor)
-           (clojure.lang Agent)))
+  (:import io.micrometer.core.instrument.MeterRegistry
+           io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics
+           io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
+           io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
+           io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
+           io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics
+           io.micrometer.core.instrument.binder.system.FileDescriptorMetrics
+           io.micrometer.core.instrument.binder.system.ProcessorMetrics
+           io.micrometer.core.instrument.binder.system.UptimeMetrics
+           io.micrometer.core.instrument.binder.MeterBinder
+           io.micrometer.core.instrument.binder.kafka.KafkaConsumerMetrics
+           java.util.concurrent.Executor
+           clojure.lang.Agent))
 
 (def logback-present?
   (try
@@ -24,10 +29,7 @@
                     (JvmMemoryMetrics.)
                     (JvmThreadMetrics.)
                     (FileDescriptorMetrics.)
-                    (GCMetrics.)
-                    (OSMetrics.)
                     (ProcessorMetrics.)
-                    (RuntimeMetrics.)
                     (UptimeMetrics.)]]
      (.bindTo ^MeterBinder metrics reg))))
 

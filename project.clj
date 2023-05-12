@@ -4,6 +4,6 @@
         "jmx"
         "prometheus"]
   :description "Clojure wrapper for http://micrometer.io/"
-  :url "https://gitlab.oscaroad.com/it-dev/macrometer"
+  :url "https://github.com/oscaro/macrometer"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"})

@@ -1,0 +1,38 @@
+name: Clojure Umbrella
+
+on:
+  push:
+    branches: [ "master", "devel" ]
+  pull_request:
+    branches: [ "master", "devel" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    ###################################
+    # Clojure Tests
+    ###################################
+
+    - name: Install Commons
+      run: |
+        cd core
+        lein do test, install
+
+    - name: Run tests
+      run: lein do test
+
+    ###################################
+    # Generate release
+    ###################################
+
+    - name: Deploy to Clojars
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/devel'
+      run: lein do jar, deploy
+      env:
+        CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+        CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
