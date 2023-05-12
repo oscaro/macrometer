@@ -24,7 +24,7 @@ jobs:
         lein do test, install
 
     - name: Run tests
-      run: lein do test
+      run: lein sub do test
 
     ###################################
     # Generate release
@@ -32,7 +32,7 @@ jobs:
 
     - name: Deploy to Clojars
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/devel'
-      run: lein do jar, deploy
+      run: lein sub do jar, deploy
       env:
         CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
         CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
