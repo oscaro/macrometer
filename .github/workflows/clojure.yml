@@ -21,7 +21,7 @@ jobs:
     - name: Install Commons
       run: |
         cd core
-        lein do test, install, deploy
+        lein do test, install
 
     - name: Run tests
       run: lein sub do test
@@ -32,7 +32,7 @@ jobs:
 
     - name: Deploy to Clojars
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/devel'
-      run: lein sub do jar, deploy
+      run: lein sub deploy
       env:
         CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
         CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
