@@ -1,4 +1,4 @@
-# macrometer [![Clojure Umbrella](https://github.com/oscaro/macrometer/actions/workflows/clojure.yml/badge.svg?branch=master)](https://github.com/oscaro/macrometer/actions/workflows/clojure.yml)
+# macrometer [![Clojure Umbrella](https://github.com/oscaro/macrometer/actions/workflows/clojure.yml/badge.svg?branch=master)](https://github.com/oscaro/macrometer/actions/workflows/clojure.yml) [![Clojars Project](https://img.shields.io/clojars/v/com.oscaro/macrometer.core.svg)](https://clojars.org/com.oscaro/macrometer.core) [![Clojars Project](https://img.shields.io/clojars/v/com.oscaro/macrometer.jmx.svg)](https://clojars.org/com.oscaro/macrometer.jmx) [![Clojars Project](https://img.shields.io/clojars/v/com.oscaro/macrometer.prometheus.svg)](https://clojars.org/com.oscaro/macrometer.prometheus)
 
 <a href="https://github.com/oscaro/macrometer"><img
   src="https://raw.githubusercontent.com/oscaro/macrometer/master/.github/logo.png"
