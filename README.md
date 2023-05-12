@@ -1,4 +1,8 @@
-# macrometer
+# macrometer [![Clojure Umbrella](https://github.com/oscaro/macrometer/actions/workflows/clojure.yml/badge.svg?branch=master)](https://github.com/oscaro/macrometer/actions/workflows/clojure.yml)
+
+<a href="https://github.com/oscaro/macrometer"><img
+  src="https://raw.githubusercontent.com/oscaro/macrometer/master/.github/logo.png"
+  height="180" align="right"></a>
 
 Clojure wrapper for http://micrometer.io/
 
