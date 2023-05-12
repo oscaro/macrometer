@@ -1,4 +1,4 @@
-(defproject com.oscaro/macrometer.jmx "1.11.0.0-SNAPSHOT"
+(defproject com.oscaro/macrometer.jmx "1.11.0.1-SNAPSHOT"
   :dependencies [[com.oscaro/macrometer.core            "1.6.3.1"]
                  [io.micrometer/micrometer-registry-jmx "1.11.0"]
                  [io.dropwizard.metrics/metrics-jmx     "4.2.18"]]
