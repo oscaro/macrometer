@@ -1,5 +1,5 @@
-(defproject com.oscaro/macrometer.jmx "1.6.3.1-SNAPSHOT"
-  :dependencies [[com.oscaro/macrometer.core            "1.6.3.1-SNAPSHOT"]
+(defproject com.oscaro/macrometer.jmx "1.6.3.1"
+  :dependencies [[com.oscaro/macrometer.core            "1.6.3.1"]
                  [io.micrometer/micrometer-registry-jmx "1.6.3"]
                  [io.dropwizard.metrics/metrics-jmx     "4.1.13"]]
   :deploy-repositories [["snapshots" {:url "https://repo.clojars.org"

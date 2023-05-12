@@ -1,4 +1,4 @@
-(defproject com.oscaro/macrometer.core "1.6.3.1-SNAPSHOT"
+(defproject com.oscaro/macrometer.core "1.6.3.1"
   :dependencies [[org.clojure/clojure           "1.10.1" :scope "provided"]
                  [org.clojure/core.async        "1.3.610"]
                  [io.micrometer/micrometer-core "1.6.3"]]
