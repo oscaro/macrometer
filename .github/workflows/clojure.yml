@@ -21,7 +21,7 @@ jobs:
     - name: Install Commons
       run: |
         cd core
-        lein do test, install
+        lein do test, install, deploy
 
     - name: Run tests
       run: lein sub do test
