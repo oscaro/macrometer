@@ -1,4 +1,6 @@
 (defproject com.oscaro/macrometer.core "1.12.4.0"
+  :license {:name "Eclipse Public License"
+            :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure           "1.10.1" :scope "provided"]
                  [org.clojure/core.async        "1.6.681"]
                  [io.micrometer/micrometer-core "1.12.4"]]
