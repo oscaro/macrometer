@@ -1,5 +1,5 @@
-(defproject com.oscaro/macrometer.prometheus "1.12.4.0-SNAPSHOT"
-  :dependencies [[com.oscaro/macrometer.core                   "1.12.4.0-SNAPSHOT"]
+(defproject com.oscaro/macrometer.prometheus "1.12.4.1-SNAPSHOT"
+  :dependencies [[com.oscaro/macrometer.core                   "1.12.4.1-SNAPSHOT"]
                  [io.micrometer/micrometer-registry-prometheus "1.12.4"]]
   :deploy-repositories [["snapshots" {:url "https://repo.clojars.org"
                                       :username :env/clojars_username
