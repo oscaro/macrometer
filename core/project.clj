@@ -11,7 +11,7 @@
                                       :password :env/clojars_password
                                       :sign-releases false}]]
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace    "1.5.0"]
-                                  [org.eclipse.jetty/jetty-server "12.0.7"]
+                                  [org.eclipse.jetty/jetty-server "11.0.15"]
                                   [clj-http                       "3.12.3"]]
                    :source-paths ["dev"]}}
   :repl-options {:init-ns user}
