@@ -1,4 +1,6 @@
 (defproject com.oscaro/macrometer.prometheus "1.12.4.1-SNAPSHOT"
+  :license {:name "Eclipse Public License"
+            :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[com.oscaro/macrometer.core                   "1.12.4.1-SNAPSHOT"]
                  [io.micrometer/micrometer-registry-prometheus "1.12.4"]]
   :deploy-repositories [["snapshots" {:url "https://repo.clojars.org"
