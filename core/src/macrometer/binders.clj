@@ -3,6 +3,7 @@
   (:import io.micrometer.core.instrument.MeterRegistry
            io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics
            io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
+           io.micrometer.core.instrument.binder.jvm.JvmInfoMetrics
            io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
            io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
            io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics
@@ -26,6 +27,7 @@
   ([^MeterRegistry reg]
    (doseq [metrics [(ClassLoaderMetrics.)
                     (JvmGcMetrics.)
+                    (JvmInfoMetrics.)
                     (JvmMemoryMetrics.)
                     (JvmThreadMetrics.)
                     (FileDescriptorMetrics.)
