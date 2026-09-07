@@ -1,7 +1,7 @@
-(defproject com.oscaro/macrometer.jmx "1.12.4.0"
+(defproject com.oscaro/macrometer.jmx "1.12.4.1"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[com.oscaro/macrometer.core            "1.12.4.0"]
+  :dependencies [[com.oscaro/macrometer.core            "1.12.4.1"]
                  [io.micrometer/micrometer-registry-jmx "1.12.4"]
                  [io.dropwizard.metrics/metrics-jmx     "4.2.25"]]
   :deploy-repositories [["snapshots" {:url "https://repo.clojars.org"
